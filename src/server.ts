@@ -1,9 +1,12 @@
+require('dotenv').config();
 import express, { Request, Response } from 'express';
 import createError, { HttpError } from 'http-errors';
 import path from 'path';
+import { ClassListService } from './services/classlist-service';
 
 const app = express();
-
+const service = new ClassListService(<string>process.env.garpusername, <string>process.env.garppassword, <string>process.env.garphost);
+console.log(`${<string>process.env.garpusername} + ${<string>process.env.garppassword} + ${<string>process.env.garphost}`);
 app.set('port', process.env.PORT || 3080);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -13,12 +16,14 @@ app.get('/', (req, res) => {
     res.send('This is the homepage!  Make it so!');
 });
 
-app.get('/attendance', (req, res) => {
-    res.send('You have reached the attendance page');
+app.get('/attendance', async (req, res) => {
+    const data = await service.getAttendance('', '');
+    res.send(data);
 });
 
-app.get('/classlist', (req, res) => {
-    res.send('Here are all the classes for your dropdown');
+app.get('/classlist', async (req, res) => {
+    const list = await service.getClassList();
+    res.send(list);
 });
 
 // catch 404 and forward to error handler
